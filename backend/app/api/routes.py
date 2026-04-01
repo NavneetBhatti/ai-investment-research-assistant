@@ -5,6 +5,7 @@ from app.tools.market_data import get_market_data
 from app.tools.fundamentals import get_fundamentals
 from app.tools.news import get_recent_news
 from app.services.scoring import calculate_scores
+from app.services.formatters import format_currency_number, format_percent, format_market_cap
 import time
 
 router = APIRouter()
@@ -35,13 +36,19 @@ def analyze(payload: AnalyzeRequest):
         news=news
     )
 
-    price = market_data.get("price")
-    change_percent = market_data.get("change_percent")
+    raw_price = market_data.get("price")
+    raw_change_percent = market_data.get("change_percent")
 
     company_name = fundamentals.get("company_name") or f"{ticker} Inc."
-    pe_ratio = fundamentals.get("pe_ratio")
-    eps = fundamentals.get("eps")
-    market_cap = fundamentals.get("market_cap")
+    raw_pe_ratio = fundamentals.get("pe_ratio")
+    raw_eps = fundamentals.get("eps")
+    raw_market_cap = fundamentals.get("market_cap")
+
+    price = format_currency_number(raw_price) if raw_price else None
+    change_percent = format_percent(raw_change_percent) if raw_change_percent else None
+    pe_ratio = format_currency_number(raw_pe_ratio) if raw_pe_ratio else None
+    eps = format_currency_number(raw_eps) if raw_eps else None
+    market_cap = format_market_cap(raw_market_cap) if raw_market_cap else None
 
     summary_parts = []
 
@@ -53,8 +60,8 @@ def analyze(payload: AnalyzeRequest):
         summary_parts.append(f"P/E ratio is {pe_ratio}")
     if eps:
         summary_parts.append(f"EPS is {eps}")
-    if news and len(news) > 0 and "failed" not in news[0]["title"].lower():
-        summary_parts.append(f"Recent news items found: {len(news)}")
+    if scores.get("news_sentiment"):
+        summary_parts.append(f"News sentiment appears {scores['news_sentiment'].lower()}")
 
     if summary_parts:
         summary = " ".join(summary_parts) + "."
@@ -73,6 +80,8 @@ def analyze(payload: AnalyzeRequest):
         reasons.append(f"Market capitalization is {market_cap}.")
     if news and len(news) > 0:
         reasons.append(f"Fetched {len(news)} recent news items.")
+    if scores.get("news_sentiment"):
+        reasons.append(f"Detected {scores['news_sentiment'].lower()} news sentiment.")
 
     if market_data.get("error"):
         reasons.append(f"Market data issue: {market_data['error']}")
@@ -94,6 +103,7 @@ def analyze(payload: AnalyzeRequest):
         "pe_ratio": pe_ratio,
         "eps": eps,
         "market_cap": market_cap,
+        "news_sentiment": scores["news_sentiment"],
         "valuation_score": scores["valuation_score"],
         "trend_score": scores["trend_score"],
         "news_score": scores["news_score"],

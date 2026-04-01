@@ -7,13 +7,67 @@ def safe_float(value, default=None):
         return default
 
 
+def calculate_news_sentiment(news: list) -> dict:
+    positive_keywords = [
+        "beat", "beats", "growth", "strong", "surge", "record", "gain", "gains",
+        "up", "upgrade", "bullish", "profit", "profits", "expands", "expansion"
+    ]
+    negative_keywords = [
+        "miss", "misses", "drop", "falls", "down", "downgrade", "bearish",
+        "loss", "losses", "lawsuit", "risk", "cuts", "decline", "weak"
+    ]
+
+    if not news:
+        return {
+            "news_score": 5,
+            "sentiment_label": "Neutral"
+        }
+
+    score = 0
+
+    for item in news:
+        title = item.get("title", "").lower()
+
+        for word in positive_keywords:
+            if word in title:
+                score += 1
+
+        for word in negative_keywords:
+            if word in title:
+                score -= 1
+
+    if score >= 2:
+        return {
+            "news_score": 8,
+            "sentiment_label": "Positive"
+        }
+    elif score == 1:
+        return {
+            "news_score": 6,
+            "sentiment_label": "Slightly Positive"
+        }
+    elif score == 0:
+        return {
+            "news_score": 5,
+            "sentiment_label": "Neutral"
+        }
+    elif score == -1:
+        return {
+            "news_score": 4,
+            "sentiment_label": "Slightly Negative"
+        }
+    else:
+        return {
+            "news_score": 3,
+            "sentiment_label": "Negative"
+        }
+
+
 def calculate_scores(market_data: dict, fundamentals: dict, news: list) -> dict:
     valuation_score = 5
     trend_score = 5
-    news_score = 5
     risk_score = 5
 
-    price = safe_float(market_data.get("price"))
     change_percent = safe_float(market_data.get("change_percent"))
     pe_ratio = safe_float(fundamentals.get("pe_ratio"))
     eps = safe_float(fundamentals.get("eps"))
@@ -41,13 +95,10 @@ def calculate_scores(market_data: dict, fundamentals: dict, news: list) -> dict:
         else:
             trend_score = 3
 
-    # News scoring
-    if news:
-        first_title = news[0].get("title", "").lower() if isinstance(news[0], dict) else ""
-        if "failed" in first_title or "thank you for using alpha vantage" in first_title:
-            news_score = 4
-        else:
-            news_score = 6 if len(news) >= 3 else 5
+    # News sentiment scoring
+    news_result = calculate_news_sentiment(news)
+    news_score = news_result["news_score"]
+    sentiment_label = news_result["sentiment_label"]
 
     # Risk scoring
     if eps is not None and eps > 0:
@@ -78,5 +129,6 @@ def calculate_scores(market_data: dict, fundamentals: dict, news: list) -> dict:
         "news_score": news_score,
         "risk_score": risk_score,
         "recommendation": recommendation,
-        "confidence": confidence
+        "confidence": confidence,
+        "news_sentiment": sentiment_label
     }

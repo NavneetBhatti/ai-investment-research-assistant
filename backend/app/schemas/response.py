@@ -17,6 +17,7 @@ class AnalyzeResponse(BaseModel):
     pe_ratio: Optional[str] = None
     eps: Optional[str] = None
     market_cap: Optional[str] = None
+    news_sentiment: Optional[str] = None
     valuation_score: int
     trend_score: int
     news_score: int
