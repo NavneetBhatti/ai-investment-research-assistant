@@ -4,6 +4,7 @@ from app.schemas.response import AnalyzeResponse
 from app.tools.market_data import get_market_data
 from app.tools.fundamentals import get_fundamentals
 from app.tools.news import get_recent_news
+from app.services.scoring import calculate_scores
 import time
 
 router = APIRouter()
@@ -27,6 +28,12 @@ def analyze(payload: AnalyzeRequest):
     time.sleep(1.2)
 
     news = get_recent_news(ticker)
+
+    scores = calculate_scores(
+        market_data=market_data,
+        fundamentals=fundamentals,
+        news=news
+    )
 
     price = market_data.get("price")
     change_percent = market_data.get("change_percent")
@@ -66,12 +73,17 @@ def analyze(payload: AnalyzeRequest):
         reasons.append(f"Market capitalization is {market_cap}.")
     if news and len(news) > 0:
         reasons.append(f"Fetched {len(news)} recent news items.")
+
     if market_data.get("error"):
         reasons.append(f"Market data issue: {market_data['error']}")
     if fundamentals.get("error"):
         reasons.append(f"Fundamentals issue: {fundamentals['error']}")
 
     reasons.append(f"Recommendation adjusted for {payload.risk_level} risk profile.")
+    reasons.append(f"Valuation score computed as {scores['valuation_score']}/10.")
+    reasons.append(f"Trend score computed as {scores['trend_score']}/10.")
+    reasons.append(f"News score computed as {scores['news_score']}/10.")
+    reasons.append(f"Risk score computed as {scores['risk_score']}/10.")
 
     return {
         "ticker": ticker,
@@ -82,12 +94,12 @@ def analyze(payload: AnalyzeRequest):
         "pe_ratio": pe_ratio,
         "eps": eps,
         "market_cap": market_cap,
-        "valuation_score": 6,
-        "trend_score": 7,
-        "news_score": 6 if news else 5,
-        "risk_score": 5,
-        "recommendation": "Hold",
-        "confidence": 6,
+        "valuation_score": scores["valuation_score"],
+        "trend_score": scores["trend_score"],
+        "news_score": scores["news_score"],
+        "risk_score": scores["risk_score"],
+        "recommendation": scores["recommendation"],
+        "confidence": scores["confidence"],
         "reasons": reasons,
         "news": news
     }
