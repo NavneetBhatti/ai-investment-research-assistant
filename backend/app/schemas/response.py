@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 from pydantic import BaseModel
 
 
@@ -6,6 +6,11 @@ class AnalyzeResponse(BaseModel):
     ticker: str
     company_name: str
     summary: str
+    current_price: Optional[str] = None
+    daily_change_percent: Optional[str] = None
+    pe_ratio: Optional[str] = None
+    eps: Optional[str] = None
+    market_cap: Optional[str] = None
     valuation_score: int
     trend_score: int
     news_score: int

@@ -118,6 +118,11 @@ function App() {
           <p><strong>Risk Score:</strong> {result.risk_score}</p>
           <p><strong>Recommendation:</strong> {result.recommendation}</p>
           <p><strong>Confidence:</strong> {result.confidence}/10</p>
+          <p><strong>Current Price:</strong> {result.current_price || "N/A"}</p>
+          <p><strong>Daily Change %:</strong> {result.daily_change_percent || "N/A"}</p>
+          <p><strong>P/E Ratio:</strong> {result.pe_ratio || "N/A"}</p>
+          <p><strong>EPS:</strong> {result.eps || "N/A"}</p>
+          <p><strong>Market Cap:</strong> {result.market_cap || "N/A"}</p>
 
           <div>
             <strong>Reasons:</strong>
