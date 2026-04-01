@@ -2,6 +2,12 @@ from typing import List, Optional
 from pydantic import BaseModel
 
 
+class NewsItem(BaseModel):
+    title: str
+    source: Optional[str] = None
+    published_at: Optional[str] = None
+
+
 class AnalyzeResponse(BaseModel):
     ticker: str
     company_name: str
@@ -18,3 +24,4 @@ class AnalyzeResponse(BaseModel):
     recommendation: str
     confidence: int
     reasons: List[str]
+    news: List[NewsItem] = []

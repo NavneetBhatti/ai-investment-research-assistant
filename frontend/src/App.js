@@ -52,7 +52,10 @@ function App() {
       <h1>AI Investment Research Assistant</h1>
       <p>Analyze a stock using a mock backend response.</p>
 
-      <form onSubmit={handleAnalyze} style={{ display: "grid", gap: "16px", marginTop: "24px" }}>
+      <form
+        onSubmit={handleAnalyze}
+        style={{ display: "grid", gap: "16px", marginTop: "24px" }}
+      >
         <div>
           <label>Ticker</label>
           <br />
@@ -97,32 +100,65 @@ function App() {
           </select>
         </div>
 
-        <button type="submit" style={{ padding: "12px 18px", cursor: "pointer" }}>
+        <button
+          type="submit"
+          style={{ padding: "12px 18px", cursor: "pointer" }}
+        >
           {loading ? "Analyzing..." : "Analyze"}
         </button>
       </form>
 
-      {error && (
-        <div style={{ marginTop: "20px", color: "red" }}>
-          {error}
-        </div>
-      )}
+      {error && <div style={{ marginTop: "20px", color: "red" }}>{error}</div>}
 
       {result && (
-        <div style={{ marginTop: "32px", padding: "20px", border: "1px solid #ddd", borderRadius: "8px" }}>
-          <h2>{result.ticker} - {result.company_name}</h2>
-          <p><strong>Summary:</strong> {result.summary}</p>
-          <p><strong>Valuation Score:</strong> {result.valuation_score}</p>
-          <p><strong>Trend Score:</strong> {result.trend_score}</p>
-          <p><strong>News Score:</strong> {result.news_score}</p>
-          <p><strong>Risk Score:</strong> {result.risk_score}</p>
-          <p><strong>Recommendation:</strong> {result.recommendation}</p>
-          <p><strong>Confidence:</strong> {result.confidence}/10</p>
-          <p><strong>Current Price:</strong> {result.current_price || "N/A"}</p>
-          <p><strong>Daily Change %:</strong> {result.daily_change_percent || "N/A"}</p>
-          <p><strong>P/E Ratio:</strong> {result.pe_ratio || "N/A"}</p>
-          <p><strong>EPS:</strong> {result.eps || "N/A"}</p>
-          <p><strong>Market Cap:</strong> {result.market_cap || "N/A"}</p>
+        <div
+          style={{
+            marginTop: "32px",
+            padding: "20px",
+            border: "1px solid #ddd",
+            borderRadius: "8px",
+          }}
+        >
+          <h2>
+            {result.ticker} - {result.company_name}
+          </h2>
+          <p>
+            <strong>Summary:</strong> {result.summary}
+          </p>
+          <p>
+            <strong>Valuation Score:</strong> {result.valuation_score}
+          </p>
+          <p>
+            <strong>Trend Score:</strong> {result.trend_score}
+          </p>
+          <p>
+            <strong>News Score:</strong> {result.news_score}
+          </p>
+          <p>
+            <strong>Risk Score:</strong> {result.risk_score}
+          </p>
+          <p>
+            <strong>Recommendation:</strong> {result.recommendation}
+          </p>
+          <p>
+            <strong>Confidence:</strong> {result.confidence}/10
+          </p>
+          <p>
+            <strong>Current Price:</strong> {result.current_price || "N/A"}
+          </p>
+          <p>
+            <strong>Daily Change %:</strong>{" "}
+            {result.daily_change_percent || "N/A"}
+          </p>
+          <p>
+            <strong>P/E Ratio:</strong> {result.pe_ratio || "N/A"}
+          </p>
+          <p>
+            <strong>EPS:</strong> {result.eps || "N/A"}
+          </p>
+          <p>
+            <strong>Market Cap:</strong> {result.market_cap || "N/A"}
+          </p>
 
           <div>
             <strong>Reasons:</strong>
@@ -131,6 +167,26 @@ function App() {
                 <li key={index}>{reason}</li>
               ))}
             </ul>
+          </div>
+          <div style={{ marginTop: "20px" }}>
+            <strong>Recent News:</strong>
+            {result.news && result.news.length > 0 ? (
+              <ul>
+                {result.news.map((item, index) => (
+                  <li key={index}>
+                    <div>
+                      <strong>{item.title}</strong>
+                    </div>
+                    <div style={{ fontSize: "14px", color: "#555" }}>
+                      {item.source}{" "}
+                      {item.published_at ? `- ${item.published_at}` : ""}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p>No recent news available.</p>
+            )}
           </div>
         </div>
       )}
