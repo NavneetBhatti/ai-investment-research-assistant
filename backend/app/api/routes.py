@@ -1,4 +1,6 @@
 from fastapi import APIRouter
+from app.schemas.request import AnalyzeRequest
+from app.schemas.response import AnalyzeResponse
 
 router = APIRouter()
 
@@ -10,12 +12,14 @@ def root():
     }
 
 
-@router.post("/analyze")
-def analyze():
+@router.post("/analyze", response_model=AnalyzeResponse)
+def analyze(payload: AnalyzeRequest):
+    ticker = payload.ticker.upper()
+
     return {
-        "ticker": "AAPL",
-        "company_name": "Apple Inc.",
-        "summary": "Mock response - backend working correctly.",
+        "ticker": ticker,
+        "company_name": "Apple Inc." if ticker == "AAPL" else f"{ticker} Inc.",
+        "summary": f"Mock analysis for {ticker} with {payload.horizon} horizon and {payload.risk_level} risk profile.",
         "valuation_score": 7,
         "trend_score": 8,
         "news_score": 6,
@@ -23,8 +27,8 @@ def analyze():
         "recommendation": "Hold",
         "confidence": 7,
         "reasons": [
-            "Price trend is currently stable.",
-            "Recent news is mixed.",
-            "Valuation is reasonable but not deeply discounted."
+            f"{ticker} shows stable momentum in this mock example.",
+            "Recent news sentiment is mixed.",
+            f"Recommendation is adjusted for a {payload.risk_level} risk investor."
         ]
     }
