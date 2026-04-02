@@ -60,8 +60,6 @@ def analyze(payload: AnalyzeRequest):
         summary_parts.append(f"P/E ratio is {pe_ratio}")
     if eps:
         summary_parts.append(f"EPS is {eps}")
-    if scores.get("news_sentiment"):
-        summary_parts.append(f"News sentiment appears {scores['news_sentiment'].lower()}")
 
     if summary_parts:
         summary = " ".join(summary_parts) + "."
@@ -81,7 +79,7 @@ def analyze(payload: AnalyzeRequest):
     if news and len(news) > 0:
         reasons.append(f"Fetched {len(news)} recent news items.")
     if scores.get("news_sentiment"):
-        reasons.append(f"Detected {scores['news_sentiment'].lower()} news sentiment.")
+        reasons.append(f"Recent news sentiment is {scores['news_sentiment'].lower()}.")
 
     if market_data.get("error"):
         reasons.append(f"Market data issue: {market_data['error']}")
