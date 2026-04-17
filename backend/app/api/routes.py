@@ -7,6 +7,7 @@ from app.tools.news import get_recent_news
 from app.services.scoring import calculate_scores
 from app.services.formatters import format_currency_number, format_percent, format_market_cap
 import time
+from app.services.llm_analysis import generate_ai_analysis
 
 router = APIRouter()
 
@@ -92,6 +93,21 @@ def analyze(payload: AnalyzeRequest):
     reasons.append(f"News score computed as {scores['news_score']}/10.")
     reasons.append(f"Risk score computed as {scores['risk_score']}/10.")
 
+    ai_analysis = generate_ai_analysis({
+        "ticker": ticker,
+        "price": price,
+        "change": change_percent,
+        "pe_ratio": pe_ratio,
+        "eps": eps,
+        "market_cap": market_cap,
+        "valuation_score": scores["valuation_score"],
+        "trend_score": scores["trend_score"],
+        "news_score": scores["news_score"],
+        "risk_score": scores["risk_score"],
+        "recommendation": scores["recommendation"],
+        "risk_level": payload.risk_level
+    })
+
     return {
         "ticker": ticker,
         "company_name": company_name,
@@ -109,5 +125,6 @@ def analyze(payload: AnalyzeRequest):
         "recommendation": scores["recommendation"],
         "confidence": scores["confidence"],
         "reasons": reasons,
-        "news": news
+        "news": news,
+        "ai_analysis": ai_analysis
     }

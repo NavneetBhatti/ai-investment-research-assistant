@@ -302,6 +302,16 @@ function App() {
             <p><strong>Market Cap:</strong> {result.market_cap || "N/A"}</p>
           </div>
 
+          <div style={{
+              padding: "24px",
+              border: "1px solid #ddd",
+              borderRadius: "10px",
+              backgroundColor: "#f9fafb"
+            }}>
+              <h3>AI Analysis</h3>
+              <p>{result.ai_analysis}</p>
+          </div>
+
           <div
             style={{
               padding: "24px",

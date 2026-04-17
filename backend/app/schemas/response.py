@@ -26,3 +26,4 @@ class AnalyzeResponse(BaseModel):
     confidence: int
     reasons: List[str]
     news: List[NewsItem] = []
+    ai_analysis: Optional[str] = None
