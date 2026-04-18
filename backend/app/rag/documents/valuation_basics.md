@@ -1,10 +1,16 @@
 # Valuation Basics
 
-A lower P/E ratio may indicate cheaper valuation, but it must be interpreted in context.
-A high P/E ratio may still be acceptable if the company has strong earnings growth, strong margins, and dominant market position.
+Valuation helps determine whether a stock is cheap or expensive.
 
-General rule:
-- P/E below 15: attractive valuation
-- P/E 15 to 25: reasonable valuation
-- P/E 25 to 35: elevated but may be justified
-- P/E above 35: expensive unless growth is exceptional
+The most common metric is the Price-to-Earnings (P/E) ratio.
+
+General guidelines:
+- P/E < 15 → undervalued or cheap
+- P/E 15–25 → fairly valued
+- P/E 25–35 → slightly expensive
+- P/E > 35 → expensive
+
+Important notes:
+- High P/E can be justified if the company has strong growth
+- Low P/E can indicate risk or declining business
+- Always combine valuation with other factors like trend and news
