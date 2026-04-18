@@ -30,7 +30,7 @@ The result is a system that provides **explainable, grounded investment insights
 
 ## 🏗️ Architecture
 
-```text
+
 Frontend (React)  
 ↓  
 Backend (FastAPI)  
