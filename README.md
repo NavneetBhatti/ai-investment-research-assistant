@@ -30,20 +30,11 @@ The result is a system that provides **explainable, grounded investment insights
 
 ## 🏗️ Architecture
 
-
-Frontend (React)  
-↓  
-Backend (FastAPI)  
-↓  
---------------------------------  
-Alpha Vantage → Market Data APIs  
-Gemini (LangChain) → AI reasoning  
-FAISS → Vector store (RAG)  
---------------------------------  
-↓  
-Scoring + Retrieval + LLM Output  
-
----
+- Frontend: React
+- Backend: FastAPI
+- APIs: Alpha Vantage
+- AI: Gemini (LangChain)
+- RAG: FAISS Vector Store
 
 ## ⚙️ Tech Stack
 
