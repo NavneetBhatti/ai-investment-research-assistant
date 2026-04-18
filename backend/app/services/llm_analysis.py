@@ -82,4 +82,4 @@ Rules:
         return _extract_text(result)
 
     except Exception as error:
-        return f"AI analysis is temporarily unavailable: {str(error)}"
+        return f"AI analysis is temporarily unavailable"

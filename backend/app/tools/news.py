@@ -6,13 +6,7 @@ def get_recent_news(ticker: str) -> list:
     ticker = ticker.upper()
 
     if not settings.ALPHA_VANTAGE_API_KEY:
-        return [
-            {
-                "title": "Missing Alpha Vantage API key",
-                "source": "system",
-                "published_at": None
-            }
-        ]
+        return []
 
     url = "https://www.alphavantage.co/query"
     params = {
@@ -27,45 +21,37 @@ def get_recent_news(ticker: str) -> list:
         response.raise_for_status()
         data = response.json()
 
-        print("NEWS RAW RESPONSE:", data)
-
         if not data:
             return []
 
         if "Note" in data:
-            return [
-                {
-                    "title": data["Note"],
-                    "source": "Alpha Vantage",
-                    "published_at": None
-                }
-            ]
+            return []
 
         if "Information" in data:
-            return [
-                {
-                    "title": data["Information"],
-                    "source": "Alpha Vantage",
-                    "published_at": None
-                }
-            ]
+            info_text = data["Information"].lower()
+            if "rate limit" in info_text or "api key" in info_text or "25 requests per day" in info_text:
+                return []
+            return []
 
         if "Error Message" in data:
-            return [
-                {
-                    "title": data["Error Message"],
-                    "source": "Alpha Vantage",
-                    "published_at": None
-                }
-            ]
+            return []
 
         feed = data.get("feed", [])
-
         news_items = []
+
         for item in feed[:5]:
+            title = item.get("title", "No title available")
+
+            if not title:
+                continue
+
+            lowered = title.lower()
+            if "rate limit" in lowered or "api key" in lowered:
+                continue
+
             news_items.append(
                 {
-                    "title": item.get("title", "No title available"),
+                    "title": title,
                     "source": item.get("source", "Unknown"),
                     "published_at": item.get("time_published")
                 }
@@ -73,11 +59,5 @@ def get_recent_news(ticker: str) -> list:
 
         return news_items
 
-    except Exception as error:
-        return [
-            {
-                "title": f"News fetch failed: {str(error)}",
-                "source": "system",
-                "published_at": None
-            }
-        ]
+    except Exception:
+        return []

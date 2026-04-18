@@ -8,7 +8,7 @@ def get_market_data(ticker: str) -> dict:
     if not settings.ALPHA_VANTAGE_API_KEY:
         return {
             "ticker": ticker,
-            "error": "Missing Alpha Vantage API key"
+            "error": "Market data API key is missing"
         }
 
     url = "https://www.alphavantage.co/query"
@@ -22,6 +22,30 @@ def get_market_data(ticker: str) -> dict:
         response = requests.get(url, params=params, timeout=15)
         response.raise_for_status()
         data = response.json()
+
+        if not data:
+            return {
+                "ticker": ticker,
+                "error": "No market data found"
+            }
+
+        if "Note" in data:
+            return {
+                "ticker": ticker,
+                "error": "Market data temporarily unavailable due to API rate limits"
+            }
+
+        if "Information" in data:
+            info_text = data["Information"].lower()
+            if "rate limit" in info_text or "api key" in info_text or "25 requests per day" in info_text:
+                return {
+                    "ticker": ticker,
+                    "error": "Market data temporarily unavailable due to API rate limits"
+                }
+            return {
+                "ticker": ticker,
+                "error": "Market data is currently unavailable"
+            }
 
         quote = data.get("Global Quote", {})
 
@@ -42,8 +66,8 @@ def get_market_data(ticker: str) -> dict:
             "source": "Alpha Vantage"
         }
 
-    except Exception as error:
+    except Exception:
         return {
             "ticker": ticker,
-            "error": str(error)
+            "error": "Market data request failed"
         }

@@ -18,12 +18,12 @@ class AnalyzeResponse(BaseModel):
     eps: Optional[str] = None
     market_cap: Optional[str] = None
     news_sentiment: Optional[str] = None
-    valuation_score: int
-    trend_score: int
-    news_score: int
-    risk_score: int
+    valuation_score: Optional[int] = None
+    trend_score: Optional[int] = None
+    news_score: Optional[int] = None
+    risk_score: Optional[int] = None
     recommendation: str
-    confidence: int
+    confidence: Optional[int] = None
     reasons: List[str]
     news: List[NewsItem] = []
     ai_analysis: Optional[str] = None

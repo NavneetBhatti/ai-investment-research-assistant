@@ -222,28 +222,36 @@ function App() {
               <div style={{ padding: "14px", border: "1px solid #eee", borderRadius: "8px" }}>
                 <strong>Valuation Score</strong>
                 <div style={{ marginTop: "8px", fontSize: "24px" }}>
-                  {result.valuation_score}/10
+                  {result.valuation_score !== null && result.valuation_score !== undefined
+                    ? `${result.valuation_score}/10`
+                    : "N/A"}
                 </div>
               </div>
 
               <div style={{ padding: "14px", border: "1px solid #eee", borderRadius: "8px" }}>
                 <strong>Trend Score</strong>
                 <div style={{ marginTop: "8px", fontSize: "24px" }}>
-                  {result.trend_score}/10
+                  {result.trend_score !== null && result.trend_score !== undefined
+                ? `${result.trend_score}/10`
+                : "N/A"}
                 </div>
               </div>
 
               <div style={{ padding: "14px", border: "1px solid #eee", borderRadius: "8px" }}>
                 <strong>News Score</strong>
                 <div style={{ marginTop: "8px", fontSize: "24px" }}>
-                  {result.news_score}/10
+                  {result.news_score !== null && result.news_score !== undefined
+                  ? `${result.news_score}/10`
+                  : "N/A"}
                 </div>
               </div>
 
               <div style={{ padding: "14px", border: "1px solid #eee", borderRadius: "8px" }}>
                 <strong>Risk Score</strong>
                 <div style={{ marginTop: "8px", fontSize: "24px" }}>
-                  {result.risk_score}/10
+                  {result.risk_score !== null && result.risk_score !== undefined
+                    ? `${result.risk_score}/10`
+                    : "N/A"}
                 </div>
               </div>
             </div>
@@ -280,7 +288,9 @@ function App() {
               <div style={{ padding: "14px", border: "1px solid #eee", borderRadius: "8px" }}>
                 <strong>Confidence</strong>
                 <div style={{ marginTop: "8px", fontSize: "20px", fontWeight: "bold" }}>
-                  {result.confidence}/10
+                  {result.confidence !== null && result.confidence !== undefined
+                    ? `${result.confidence}/10`
+                    : "N/A"}
                 </div>
               </div>
             </div>

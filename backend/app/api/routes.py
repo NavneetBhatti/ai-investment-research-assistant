@@ -5,9 +5,13 @@ from app.tools.market_data import get_market_data
 from app.tools.fundamentals import get_fundamentals
 from app.tools.news import get_recent_news
 from app.services.scoring import calculate_scores
-from app.services.formatters import format_currency_number, format_percent, format_market_cap
-import time
+from app.services.formatters import (
+    format_currency_number,
+    format_percent,
+    format_market_cap,
+)
 from app.services.llm_analysis import generate_ai_analysis
+import time
 
 router = APIRouter()
 
@@ -23,19 +27,56 @@ def root():
 def analyze(payload: AnalyzeRequest):
     ticker = payload.ticker.upper()
 
-    market_data = get_market_data(ticker)
+    market_data = {}
+    fundamentals = {}
+    news = []
+    reasons = []
+
+    # 1. Market data
+    try:
+        market_data = get_market_data(ticker) or {}
+    except Exception as error:
+        market_data = {"error": f"Market data failed: {str(error)}"}
+
     time.sleep(1.2)
 
-    fundamentals = get_fundamentals(ticker)
+    # 2. Fundamentals
+    try:
+        fundamentals = get_fundamentals(ticker) or {}
+    except Exception as error:
+        fundamentals = {"error": f"Fundamentals failed: {str(error)}"}
+
     time.sleep(1.2)
 
-    news = get_recent_news(ticker)
+    # 3. News
+    try:
+        news = get_recent_news(ticker) or []
+    except Exception as error:
+        news = [
+            {
+                "title": f"News fetch failed: {str(error)}",
+                "source": "system",
+                "published_at": None
+            }
+        ]
 
-    scores = calculate_scores(
-        market_data=market_data,
-        fundamentals=fundamentals,
-        news=news
-    )
+    # 4. Honest scoring
+    try:
+        scores = calculate_scores(
+            market_data=market_data,
+            fundamentals=fundamentals,
+            news=news
+        )
+    except Exception:
+        scores = {
+            "valuation_score": None,
+            "trend_score": None,
+            "news_score": None,
+            "risk_score": None,
+            "recommendation": "Insufficient Data",
+            "confidence": None,
+            "news_sentiment": None
+        }
 
     raw_price = market_data.get("price")
     raw_change_percent = market_data.get("change_percent")
@@ -65,10 +106,9 @@ def analyze(payload: AnalyzeRequest):
     if summary_parts:
         summary = " ".join(summary_parts) + "."
     else:
-        summary = f"Limited data is available for {ticker}."
+        summary = f"Reliable external data is currently unavailable for {ticker}. Partial analysis only."
 
-    reasons = []
-
+    # Reasons
     if price:
         reasons.append(f"Current market price is {price}.")
     if change_percent:
@@ -77,8 +117,13 @@ def analyze(payload: AnalyzeRequest):
         reasons.append(f"P/E ratio is {pe_ratio}.")
     if market_cap:
         reasons.append(f"Market capitalization is {market_cap}.")
+
+    # Only show news reason when it looks like actual news
     if news and len(news) > 0:
-        reasons.append(f"Fetched {len(news)} recent news items.")
+        first_title = news[0].get("title", "").lower()
+        if not any(term in first_title for term in ["api key", "rate limit", "failed", "error"]):
+            reasons.append(f"Fetched {len(news)} recent news items.")
+
     if scores.get("news_sentiment"):
         reasons.append(f"Recent news sentiment is {scores['news_sentiment'].lower()}.")
 
@@ -87,26 +132,41 @@ def analyze(payload: AnalyzeRequest):
     if fundamentals.get("error"):
         reasons.append(f"Fundamentals issue: {fundamentals['error']}")
 
-    reasons.append(f"Recommendation adjusted for {payload.risk_level} risk profile.")
-    reasons.append(f"Valuation score computed as {scores['valuation_score']}/10.")
-    reasons.append(f"Trend score computed as {scores['trend_score']}/10.")
-    reasons.append(f"News score computed as {scores['news_score']}/10.")
-    reasons.append(f"Risk score computed as {scores['risk_score']}/10.")
+    if not news:
+        reasons.append("News data is currently unavailable.")
 
-    ai_analysis = generate_ai_analysis({
-        "ticker": ticker,
-        "price": price,
-        "change": change_percent,
-        "pe_ratio": pe_ratio,
-        "eps": eps,
-        "market_cap": market_cap,
-        "valuation_score": scores["valuation_score"],
-        "trend_score": scores["trend_score"],
-        "news_score": scores["news_score"],
-        "risk_score": scores["risk_score"],
-        "recommendation": scores["recommendation"],
-        "risk_level": payload.risk_level
-    })
+    reasons.append(f"Recommendation adjusted for {payload.risk_level} risk profile.")
+
+    if scores.get("valuation_score") is not None:
+        reasons.append(f"Valuation score computed as {scores['valuation_score']}/10.")
+    if scores.get("trend_score") is not None:
+        reasons.append(f"Trend score computed as {scores['trend_score']}/10.")
+    if scores.get("news_score") is not None:
+        reasons.append(f"News score computed as {scores['news_score']}/10.")
+    if scores.get("risk_score") is not None:
+        reasons.append(f"Risk score computed as {scores['risk_score']}/10.")
+
+    if scores.get("recommendation") == "Insufficient Data":
+        reasons.append("Not enough reliable external data was available to generate a full recommendation.")
+
+    # 5. AI explanation should never break response
+    try:
+        ai_analysis = generate_ai_analysis({
+            "ticker": ticker,
+            "price": price,
+            "change": change_percent,
+            "pe_ratio": pe_ratio,
+            "eps": eps,
+            "market_cap": market_cap,
+            "valuation_score": scores.get("valuation_score"),
+            "trend_score": scores.get("trend_score"),
+            "news_score": scores.get("news_score"),
+            "risk_score": scores.get("risk_score"),
+            "recommendation": scores.get("recommendation"),
+            "risk_level": payload.risk_level
+        })
+    except Exception:
+        ai_analysis = "AI analysis is temporarily unavailable right now."
 
     return {
         "ticker": ticker,
@@ -117,13 +177,13 @@ def analyze(payload: AnalyzeRequest):
         "pe_ratio": pe_ratio,
         "eps": eps,
         "market_cap": market_cap,
-        "news_sentiment": scores["news_sentiment"],
-        "valuation_score": scores["valuation_score"],
-        "trend_score": scores["trend_score"],
-        "news_score": scores["news_score"],
-        "risk_score": scores["risk_score"],
-        "recommendation": scores["recommendation"],
-        "confidence": scores["confidence"],
+        "news_sentiment": scores.get("news_sentiment"),
+        "valuation_score": scores.get("valuation_score"),
+        "trend_score": scores.get("trend_score"),
+        "news_score": scores.get("news_score"),
+        "risk_score": scores.get("risk_score"),
+        "recommendation": scores.get("recommendation", "Insufficient Data"),
+        "confidence": scores.get("confidence"),
         "reasons": reasons,
         "news": news,
         "ai_analysis": ai_analysis

@@ -8,7 +8,7 @@ def get_fundamentals(ticker: str) -> dict:
     if not settings.ALPHA_VANTAGE_API_KEY:
         return {
             "ticker": ticker,
-            "error": "Missing Alpha Vantage API key"
+            "error": "Fundamentals API key is missing"
         }
 
     url = "https://www.alphavantage.co/query"
@@ -23,36 +23,40 @@ def get_fundamentals(ticker: str) -> dict:
         response.raise_for_status()
         data = response.json()
 
-        print("FUNDAMENTALS RAW RESPONSE:", data)
-
         if not data:
             return {
                 "ticker": ticker,
-                "error": "Empty fundamentals response"
+                "error": "No fundamentals data found"
             }
 
         if "Note" in data:
             return {
                 "ticker": ticker,
-                "error": data["Note"]
+                "error": "Fundamentals data temporarily unavailable due to API rate limits"
             }
 
         if "Information" in data:
+            info_text = data["Information"].lower()
+            if "rate limit" in info_text or "api key" in info_text or "25 requests per day" in info_text:
+                return {
+                    "ticker": ticker,
+                    "error": "Fundamentals data temporarily unavailable due to API rate limits"
+                }
             return {
                 "ticker": ticker,
-                "error": data["Information"]
+                "error": "Fundamentals data is currently unavailable"
             }
 
         if "Error Message" in data:
             return {
                 "ticker": ticker,
-                "error": data["Error Message"]
+                "error": "Invalid ticker or fundamentals data not found"
             }
 
         if "Symbol" not in data:
             return {
                 "ticker": ticker,
-                "error": f"Unexpected fundamentals response: {data}"
+                "error": "Unexpected fundamentals response"
             }
 
         return {
@@ -68,8 +72,8 @@ def get_fundamentals(ticker: str) -> dict:
             "source": "Alpha Vantage"
         }
 
-    except Exception as error:
+    except Exception:
         return {
             "ticker": ticker,
-            "error": str(error)
+            "error": "Fundamentals request failed"
         }
