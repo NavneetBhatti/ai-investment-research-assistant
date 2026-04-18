@@ -44,6 +44,16 @@ function App() {
     boxSizing: "border-box",
   };
 
+  const buttonStyle = {
+    padding: "12px 18px",
+    cursor: "pointer",
+    borderRadius: "8px",
+    border: "none",
+    backgroundColor: "#111",
+    color: "#fff",
+    fontWeight: "bold",
+  };
+
   const getScoreDisplay = (value) => {
     return value !== null && value !== undefined ? `${value}/10` : "N/A";
   };
@@ -64,6 +74,53 @@ function App() {
     }
 
     return { color: "#666", label: sentiment || "N/A" };
+  };
+
+  const scoreBadgeStyle = (value) => {
+    if (value === null || value === undefined) {
+      return {
+        display: "inline-block",
+        padding: "6px 10px",
+        borderRadius: "999px",
+        backgroundColor: "#f3f4f6",
+        fontSize: "14px",
+        fontWeight: "bold",
+      };
+    }
+
+    if (value >= 7) {
+      return {
+        display: "inline-block",
+        padding: "6px 10px",
+        borderRadius: "999px",
+        backgroundColor: "#dcfce7",
+        color: "#166534",
+        fontSize: "14px",
+        fontWeight: "bold",
+      };
+    }
+
+    if (value >= 5) {
+      return {
+        display: "inline-block",
+        padding: "6px 10px",
+        borderRadius: "999px",
+        backgroundColor: "#fef3c7",
+        color: "#92400e",
+        fontSize: "14px",
+        fontWeight: "bold",
+      };
+    }
+
+    return {
+      display: "inline-block",
+      padding: "6px 10px",
+      borderRadius: "999px",
+      backgroundColor: "#fee2e2",
+      color: "#991b1b",
+      fontSize: "14px",
+      fontWeight: "bold",
+    };
   };
 
   const handleSingleChange = (event) => {
@@ -285,16 +342,52 @@ function App() {
     );
   };
 
-  const renderCompareStockCard = (stock) => {
+  const renderCompareStockCard = (stock, isWinner = false) => {
     const sentimentDisplay = getSentimentStyle(stock?.news_sentiment);
 
-    return (
-      <div style={cardStyle}>
-        <h2 style={{ marginTop: 0 }}>
-          {stock.ticker} - {stock.company_name}
-        </h2>
+    const winnerBorder = isWinner ? "2px solid #16a34a" : "1px solid #ddd";
+    const winnerBackground = isWinner ? "#f0fdf4" : "#fff";
 
-        <p style={{ color: "#555" }}>{stock.summary}</p>
+    return (
+      <div
+        style={{
+          padding: "24px",
+          border: winnerBorder,
+          borderRadius: "12px",
+          backgroundColor: winnerBackground,
+          boxShadow: isWinner ? "0 4px 14px rgba(22, 163, 74, 0.12)" : "none",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "start",
+            gap: "12px",
+          }}
+        >
+          <h2 style={{ marginTop: 0, marginBottom: "10px" }}>
+            {stock.ticker} - {stock.company_name}
+          </h2>
+
+          {isWinner && (
+            <div
+              style={{
+                padding: "6px 10px",
+                borderRadius: "999px",
+                backgroundColor: "#16a34a",
+                color: "#fff",
+                fontSize: "12px",
+                fontWeight: "bold",
+                whiteSpace: "nowrap",
+              }}
+            >
+              Better Pick
+            </div>
+          )}
+        </div>
+
+        <p style={{ color: "#555", marginTop: 0 }}>{stock.summary}</p>
 
         <div
           style={{
@@ -306,29 +399,37 @@ function App() {
         >
           <div style={metricCardStyle}>
             <strong>Valuation</strong>
-            <div style={{ marginTop: "8px", fontSize: "20px" }}>
-              {getScoreDisplay(stock.valuation_score)}
+            <div style={{ marginTop: "10px" }}>
+              <span style={scoreBadgeStyle(stock.valuation_score)}>
+                {getScoreDisplay(stock.valuation_score)}
+              </span>
             </div>
           </div>
 
           <div style={metricCardStyle}>
             <strong>Trend</strong>
-            <div style={{ marginTop: "8px", fontSize: "20px" }}>
-              {getScoreDisplay(stock.trend_score)}
+            <div style={{ marginTop: "10px" }}>
+              <span style={scoreBadgeStyle(stock.trend_score)}>
+                {getScoreDisplay(stock.trend_score)}
+              </span>
             </div>
           </div>
 
           <div style={metricCardStyle}>
             <strong>News</strong>
-            <div style={{ marginTop: "8px", fontSize: "20px" }}>
-              {getScoreDisplay(stock.news_score)}
+            <div style={{ marginTop: "10px" }}>
+              <span style={scoreBadgeStyle(stock.news_score)}>
+                {getScoreDisplay(stock.news_score)}
+              </span>
             </div>
           </div>
 
           <div style={metricCardStyle}>
             <strong>Risk</strong>
-            <div style={{ marginTop: "8px", fontSize: "20px" }}>
-              {getScoreDisplay(stock.risk_score)}
+            <div style={{ marginTop: "10px" }}>
+              <span style={scoreBadgeStyle(stock.risk_score)}>
+                {getScoreDisplay(stock.risk_score)}
+              </span>
             </div>
           </div>
         </div>
@@ -478,18 +579,7 @@ function App() {
             </select>
           </div>
 
-          <button
-            type="submit"
-            style={{
-              padding: "12px 18px",
-              cursor: "pointer",
-              borderRadius: "8px",
-              border: "none",
-              backgroundColor: "#111",
-              color: "#fff",
-              fontWeight: "bold",
-            }}
-          >
+          <button type="submit" style={buttonStyle}>
             {loading ? "Analyzing..." : "Analyze"}
           </button>
         </form>
@@ -565,18 +655,7 @@ function App() {
             </select>
           </div>
 
-          <button
-            type="submit"
-            style={{
-              padding: "12px 18px",
-              cursor: "pointer",
-              borderRadius: "8px",
-              border: "none",
-              backgroundColor: "#111",
-              color: "#fff",
-              fontWeight: "bold",
-            }}
-          >
+          <button type="submit" style={buttonStyle}>
             {loading ? "Comparing..." : "Compare"}
           </button>
         </form>
@@ -603,14 +682,17 @@ function App() {
         <div style={{ marginTop: "32px", display: "grid", gap: "20px" }}>
           <div
             style={{
-              padding: "18px 24px",
+              padding: "20px 24px",
               border: "1px solid #ddd",
-              borderRadius: "10px",
-              backgroundColor: "#f9fafb",
+              borderRadius: "12px",
+              background:
+                compareResult.better_pick && compareResult.better_pick !== "Tie"
+                  ? "#f0fdf4"
+                  : "#f9fafb",
             }}
           >
             <h2 style={{ marginTop: 0, marginBottom: "8px" }}>Comparison Result</h2>
-            <p style={{ margin: 0 }}>
+            <p style={{ margin: 0, fontSize: "18px" }}>
               <strong>Better Pick:</strong> {compareResult.better_pick || "N/A"}
             </p>
           </div>
@@ -622,13 +704,25 @@ function App() {
               gap: "20px",
             }}
           >
-            {renderCompareStockCard(compareResult.stock_1)}
-            {renderCompareStockCard(compareResult.stock_2)}
+            {renderCompareStockCard(
+              compareResult.stock_1,
+              compareResult.better_pick === compareResult.stock_1.ticker
+            )}
+            {renderCompareStockCard(
+              compareResult.stock_2,
+              compareResult.better_pick === compareResult.stock_2.ticker
+            )}
           </div>
 
-          <div style={{ ...cardStyle, backgroundColor: "#f9fafb" }}>
+          <div
+            style={{
+              ...cardStyle,
+              backgroundColor: "#f8fafc",
+              borderLeft: "6px solid #111",
+            }}
+          >
             <h3 style={{ marginTop: 0 }}>AI Comparison Summary</h3>
-            <p style={{ marginTop: "12px", lineHeight: "1.6" }}>
+            <p style={{ marginTop: "12px", lineHeight: "1.7" }}>
               {compareResult.comparison_summary || "No comparison summary available."}
             </p>
           </div>
