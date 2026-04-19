@@ -2,6 +2,12 @@
 
 An AI-powered investment research assistant that analyzes and compares stocks using real-time financial data, deterministic scoring, and Retrieval-Augmented Generation (RAG).
 
+## 📸 Demo
+
+![Single Analysis](./single.png)
+
+![Compare Model](./compare.png)
+
 ---
 
 ## 🚀 Overview
@@ -30,11 +36,19 @@ The result is a system that provides **explainable, grounded investment insights
 
 ## 🏗️ Architecture
 
-- Frontend: React
-- Backend: FastAPI
-- APIs: Alpha Vantage
-- AI: Gemini (LangChain)
-- RAG: FAISS Vector Store
+```text
+Frontend (React)
+        ↓
+Backend (FastAPI)
+        ↓
+--------------------------------
+Alpha Vantage → Market Data APIs
+Gemini (LangChain) → AI reasoning
+FAISS → Vector store (RAG)
+--------------------------------
+        ↓
+Scoring + Retrieval + LLM Output
+```
 
 ## ⚙️ Tech Stack
 
@@ -102,3 +116,16 @@ Compare two stocks side-by-side:
 cd backend
 pip install -r requirements.txt
 uvicorn app.main:app --reload
+```
+
+---
+
+## 📌 Future Improvements
+
+- 📈 Portfolio tracking and performance analytics
+- ⏱️ Historical backtesting of strategies
+- 🔔 Real-time alerts and notifications
+- 🌍 Multi-asset support (ETFs, crypto, global markets)
+- 🧠 LangGraph-based multi-step AI workflows
+- 📡 Live streaming data integration (WebSockets)
+- 🧾 Exportable reports (PDF / dashboard)
